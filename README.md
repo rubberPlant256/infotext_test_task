@@ -19,6 +19,6 @@
     ```
 4.  Запустите скомпилированный JAR-файл:
     ```bash
-    java -jar build/libs/happycity-1.0-SNAPSHOT.jar
+     java -jar build/libs/infotext_test_task-1.0-SNAPSHOT.jar
     ```
 
