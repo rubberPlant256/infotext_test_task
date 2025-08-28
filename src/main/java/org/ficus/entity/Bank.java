@@ -48,10 +48,8 @@ public class Bank extends Thread {
         Random random = new Random();
         while (isRunning) {
             try {
-                // Имитация работы банка
                 Thread.sleep(random.nextInt(100) + 1);
 
-                // Банк "очень часто" уходит на обед (60% вероятность)
                 if (random.nextInt(100) < 60) {
                     System.out.println(this.name + " уходит на обед.");
 

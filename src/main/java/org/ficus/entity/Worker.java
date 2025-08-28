@@ -1,5 +1,6 @@
 package org.ficus.entity;
 
+import org.ficus.MainService;
 import org.ficus.config.InitializationConfig;
 
 import java.util.List;
@@ -56,7 +57,8 @@ public class Worker extends Thread implements Client {
                     System.out.println(super.getName() + " накопил " + money + "$ и решил отнести их в банк.");
 
                     // Выбор случайного банка
-                    Bank bank = getRandomBank();
+//                    Bank bank = getRandomBank();
+                    Bank bank = MainService.getRandomEntity(banks);
 
                     // Занимаем банк
                     bank.occupy();
@@ -86,9 +88,9 @@ public class Worker extends Thread implements Client {
         }
     }
 
-    private Bank getRandomBank() {
-        return banks.get(random.nextInt(banks.size()));
-    }
+//    private Bank getRandomBank() {
+//        return banks.get(random.nextInt(banks.size()));
+//    }
 
     public void shutdown() {
         this.isRunning = false;

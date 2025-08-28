@@ -1,11 +1,12 @@
 package org.ficus.entity;
 
+import org.ficus.MainService;
 import org.ficus.config.InitializationConfig;
 import java.util.List;
 import java.util.Random;
 
 public class Spender extends Thread implements Client {
-//    private final String name;
+
     private int money;
     private volatile boolean isRunning = true;
     private final List<Bank> banks;
@@ -19,11 +20,6 @@ public class Spender extends Thread implements Client {
         this.banks = banks;
         this.workers = workers;
     }
-
-//    @Override
-//    public String getName() {
-//        return name;
-//    }
 
     @Override
     public int getMoney() {
@@ -44,7 +40,8 @@ public class Spender extends Thread implements Client {
                     System.out.println(this.getName() + " обанкротился и пошёл за кредитом в банк.");
 
                     // Выбор случайного банка
-                    Bank bank = getRandomBank();
+//                    Bank bank = getRandomBank();
+                    Bank bank = MainService.getRandomEntity(banks);
 
                     // Занимаем банк
                     bank.occupy();
@@ -70,7 +67,7 @@ public class Spender extends Thread implements Client {
                     System.out.println(this.getName() + " хочет нанять рабочего.");
 
                     // Выбор случайного рабочего
-                    Worker worker = getRandomWorker();
+                    Worker worker = MainService.getRandomEntity(workers);
 
                     // Занимаем рабочего
                     worker.occupy();
@@ -98,14 +95,6 @@ public class Spender extends Thread implements Client {
                 this.isRunning = false;
             }
         }
-    }
-
-    private Bank getRandomBank() {
-        return banks.get(random.nextInt(banks.size()));
-    }
-
-    private Worker getRandomWorker() {
-        return workers.get(random.nextInt(workers.size()));
     }
 
     public void shutdown() {
