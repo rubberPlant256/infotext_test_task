@@ -1,5 +1,7 @@
 package org.ficus.entity;
 
+import org.ficus.util.LoggerUtil;
+
 public class HelpDesk {
 
     private static volatile HelpDesk instance;
@@ -19,6 +21,6 @@ public class HelpDesk {
     }
 
     public synchronized void getHelp(String message) {
-        System.out.println("HelpDesk: " + message);
+        LoggerUtil.LOGGER.info("HelpDesk: " + message);
     }
 }

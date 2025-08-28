@@ -1,6 +1,7 @@
 package org.ficus.entity;
 
 import org.ficus.config.InitializationConfig;
+import org.ficus.service.MoneyCountService;
 
 import java.util.List;
 
@@ -24,32 +25,34 @@ public class Media extends Thread {
             try {
                 printSummary();
 
-                // СМИ тоже уходит на обед
                 Thread.sleep(InitializationConfig.getLunchDurationMs());
 
             } catch (InterruptedException e) {
-                // Прерываем цикл при прерывании потока
                 break;
             }
         }
     }
 
     public void printSummary() {
-        // Рассчитываем общее количество денег в городе
-        int totalMoneyInBanks = banks.stream().mapToInt(Bank::getMoney).sum();
-        int totalMoneyInWorkers = workers.stream().mapToInt(Worker::getMoney).sum();
-        int totalMoneyInSpenders = spenders.stream().mapToInt(Spender::getMoney).sum();
-        int totalMoneyInCity = totalMoneyInBanks + totalMoneyInWorkers + totalMoneyInSpenders;
 
+        int totalMoneyInCity = MoneyCountService.calculateTotalMoney(banks, workers, spenders);
         System.out.println("\nGood news for everyone! Total amount money in city is: " + totalMoneyInCity + "$");
 
-        // Выводим информацию по каждому банку
-        banks.forEach(bank -> System.out.println("This " + bank.getBankName() + " has money: " + bank.getMoney() + "$"));
+        printClientBalances("Banks", banks);
+        printClientBalances("Workers", workers);
+        printClientBalances("Spenders", spenders);
+    }
 
-        // Выводим информацию по каждому рабочему
-        workers.forEach(worker -> System.out.println("This " + worker.getName() + " has money: " + worker.getMoney() + "$"));
-
-        // Выводим информацию по каждому транжире
-        spenders.forEach(spender -> System.out.println("This " + spender.getName() + " has money: " + spender.getMoney() + "$"));
+    private <T extends Thread> void printClientBalances(String clientType, List<T> clients) {
+        System.out.println("--- " + clientType + " ---");
+        clients.forEach(client -> {
+            if (client instanceof Bank) {
+                System.out.println("This " + ((Bank) client).getBankName() + " has money: " + ((Bank) client).getMoney() + "$");
+            } else if (client instanceof Worker) {
+                System.out.println("This " + ((Worker) client).getName() + " has money: " + ((Worker) client).getMoney() + "$");
+            } else if (client instanceof Spender) {
+                System.out.println("This " + ((Spender) client).getName() + " has money: " + ((Spender) client).getMoney() + "$");
+            }
+        });
     }
 }

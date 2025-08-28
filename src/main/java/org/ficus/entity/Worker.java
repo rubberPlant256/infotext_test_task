@@ -1,39 +1,23 @@
 package org.ficus.entity;
 
-import org.ficus.MainService;
 import org.ficus.config.InitializationConfig;
+import org.ficus.service.RandomService;
+import org.ficus.util.LoggerUtil;
 
 import java.util.List;
 import java.util.Random;
 
-public class Worker extends Thread implements Client {
-//    private final String name;
-    private int money;
+public class Worker extends AbstractClient {
+
     private volatile boolean isOccupied = false;
-    private volatile boolean isRunning = true;
-    private final List<Bank> banks;
+
     private final Random random = new Random();
+    HelpDesk helpDesk = HelpDesk.getInstance();
 
     public Worker(int id, List<Bank> banks) {
-//        this.name = "Worker-" + id;
-        super("Worker-" + id);
-        this.money = InitializationConfig.getInitialClientMoney();
-        this.banks = banks;
-    }
-
-//    @Override
-//    public String getName() {
-//        return name;
-//    }
-
-    @Override
-    public int getMoney() {
-        return money;
-    }
-
-    @Override
-    public void setMoney(int amount) {
-        this.money = amount;
+        super("Worker-" + id,
+                InitializationConfig.getInitialClientMoney(),
+                banks);
     }
 
     public synchronized void occupy() throws InterruptedException {
@@ -52,35 +36,11 @@ public class Worker extends Thread implements Client {
     public void run() {
         while (isRunning) {
             try {
-                // Если денег много, относим их в банк
                 if (money > InitializationConfig.getWorkerMoneyLimitForBank()) {
-                    System.out.println(super.getName() + " накопил " + money + "$ и решил отнести их в банк.");
-
-                    // Выбор случайного банка
-//                    Bank bank = getRandomBank();
-                    Bank bank = MainService.getRandomEntity(banks);
-
-                    // Занимаем банк
-                    bank.occupy();
-                    System.out.println(super.getName() + " начал вносить деньги в " + bank.getBankName());
-
-                    // Выполняем транзакцию
-                    int moneyToDeposit = this.money;
-                    bank.addMoney(moneyToDeposit);
-                    this.setMoney(0);
-
-                    // Имитация работы с банком
-                    Thread.sleep(InitializationConfig.getWorkerWorkDurationMs());
-
-                    // Освобождаем банк
-                    bank.release();
-                    System.out.println(super.getName() + " завершил операцию в " + bank.getBankName()
-                            + ". Баланс: " + this.money + "$");
+                    depositMoneyToBank();
                 }
 
-                // Имитация ожидания нового задания
                 Thread.sleep(100 + random.nextInt(100));
-
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 this.isRunning = false;
@@ -88,17 +48,27 @@ public class Worker extends Thread implements Client {
         }
     }
 
-//    private Bank getRandomBank() {
-//        return banks.get(random.nextInt(banks.size()));
-//    }
+    private void depositMoneyToBank() throws InterruptedException {
+        helpDesk.getHelp(super.getName() + " накопил " + money + "$ и решил отнести их в банк.");
 
-    public void shutdown() {
-        this.isRunning = false;
-        this.interrupt();
+        Bank bank = RandomService.getRandomEntity(banks);
+
+        bank.occupy();
+        helpDesk.getHelp(super.getName() + " начал вносить деньги в " + bank.getBankName());
+
+        int moneyToDeposit = this.money;
+        bank.addMoney(moneyToDeposit);
+        this.setMoney(0);
+
+        Thread.sleep(InitializationConfig.getWorkerWorkDurationMs());
+
+        bank.release();
+        helpDesk.getHelp(super.getName() + " завершил операцию в " + bank.getBankName()
+                + ". Баланс: " + this.money + "$");
     }
 
     public synchronized void earnMoney(int salary) {
         this.money += salary;
-        System.out.println(super.getName() + " заработал " + salary + "$ и теперь имеет " + this.money + "$");
+        helpDesk.getHelp(super.getName() + " заработал " + salary + "$ и теперь имеет " + this.money + "$");
     }
 }
