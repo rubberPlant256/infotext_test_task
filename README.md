@@ -22,3 +22,4 @@
      java -jar build/libs/infotext_test_task-1.0-SNAPSHOT.jar
     ```
 
+Код также лежит на github: https://github.com/rubberPlant256/infotext_test_task
